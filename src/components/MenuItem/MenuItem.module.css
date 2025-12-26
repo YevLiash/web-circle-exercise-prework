@@ -28,6 +28,8 @@
 
 .menuItemBtnContainer {
   display: flex;
+  gap: 40px;
+  padding: 10px;
 }
 
 .menuItemDetail {

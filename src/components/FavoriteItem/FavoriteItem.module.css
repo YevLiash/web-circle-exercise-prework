@@ -1,0 +1,37 @@
+.img {
+  width: 90px;
+  border-radius: 8px;
+}
+
+li {
+  border: lightblue solid 2px;
+  border-radius: 8px;
+  padding: 8px 10px;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: start;
+}
+
+.deleteIcon {
+  font-size: 25px;
+  color: lightcoral;
+}
+
+.deleteIcon:hover {
+  color: red;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  margin-left: auto;
+}

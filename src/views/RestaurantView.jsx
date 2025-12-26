@@ -1,39 +1,44 @@
-import { useEffect, useState } from "react";
-import { useDebouncedCallback } from 'use-debounce';
-import MenuItem from "../components/MenuItem/MenuItem.jsx";
+import {useEffect, useState} from 'react'
+import {useDebouncedCallback} from 'use-debounce'
+import MenuItem from '../components/MenuItem/MenuItem.jsx'
 
-import styles from "./RestaurantView.module.css";
-import NavBar from "../components/NavBar/NavBar.jsx";
-import SearchField from "../components/SearchField/SearchField.jsx";
+import styles from './RestaurantView.module.css'
+import NavBar from '../components/NavBar/NavBar.jsx'
+import SearchField from '../components/SearchField/SearchField.jsx'
+import {CiBookmark} from 'react-icons/ci'
+import {Link} from 'react-router-dom'
 
 const RestaurantView = () => {
-  const [dishes, setDishes] = useState([]);
+  const [dishes, setDishes] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || [])
+
 
   // useDebouncedCallback takes a function as a parameter and as the second parameter
   // the number of milliseconds it should wait until it is actually called so a user
   // can type freely and as long as they are typing a letter quicker than 500ms, the function won't fire yet.
   // This is to optimize user experience and communication with the server
   const debouncedEffectHook = useDebouncedCallback(() => {
-    let currentEffect = true;
+    let currentEffect = true
     fetch(
       `https://www.themealdb.com/api/json/v1/1/search.php?s=`
     ).then(res => {
       if (!res.ok) {
-        return { meals: null };
+        return {meals: null}
       }
-      return res.json();
+      return res.json()
     }).then(result => {
       if (!currentEffect) {
-        return;
+        return
       }
       // The ?? operator turns 'undefined' or 'null' values into a preferred default value on the right side
       // We know that result.meals can be null if there are no results, so in that case, we provide an empty array for safety
-      setDishes(result.meals ?? []);
+      setDishes(result.meals ?? [])
     }).catch(() => {
       if (!currentEffect) {
-        return;
+        return
       }
-      setDishes([]);
+      setDishes([])
     })
 
     // This cleanup function is to prevent multiple API calls coming back out of sequence and setting the value of our dishes list.
@@ -43,29 +48,64 @@ const RestaurantView = () => {
     // 3. Then, finally, the first data fetch comes back and overwrites the results, so the search box shows 'burger'
     //    but the results show pizzas. This is called "stale data"
     return () => {
-      currentEffect = false;
+      currentEffect = false
     }
-  }, 500);
+  }, 500)
 
   // useEffect can take a variable that is a function and does not need to be defined as an anonymous () => {} arrow function
   // This is especially important when using more controlled techniques like debouncing
-  useEffect(debouncedEffectHook, [debouncedEffectHook]);
+  useEffect(debouncedEffectHook, [debouncedEffectHook])
+
+  const filteredDishes = searchQuery
+    ? dishes.filter((item) => item.strMeal.toLowerCase().includes(searchQuery.toLowerCase()))
+    : dishes
+
+  function addToFavorites(item) {
+    const isFavorite = favorites.some(
+      favItem => favItem.idMeal === item.idMeal
+    )
+    if (isFavorite) return
+
+    const newFavorites = [...favorites, item]
+
+    setFavorites(newFavorites)
+    localStorage.setItem('favorites', JSON.stringify(newFavorites))
+    console.log(favorites)
+  }
+
+  function deleteFromFavorites() {
+  }
 
   return (
     <>
       <NavBar>
         <h1>ReDI React Restaurant</h1>
 
-        <SearchField />
+        <SearchField
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+
+        <div className={styles.favIconWrapper}>
+          <Link
+            className={styles.favIconLink}
+            to={'/favorites'}
+          >
+            <CiBookmark />
+          </Link>
+          <span className={styles.favCount}>{favorites.length}</span>
+        </div>
+
       </NavBar>
 
       <div className={styles.restaurantWrapper}>
         <div className={styles.menu}>
-          {dishes.length > 0 ? (
-            dishes.map((dish) => (
+          {filteredDishes.length > 0 ? (
+            filteredDishes.map((dish) => (
               <MenuItem
                 dish={dish}
                 key={dish.idMeal}
+                addToFavorites={addToFavorites}
               />
             ))
           ) : (
@@ -74,7 +114,7 @@ const RestaurantView = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default RestaurantView;
+export default RestaurantView

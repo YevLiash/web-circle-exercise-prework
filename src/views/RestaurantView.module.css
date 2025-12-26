@@ -13,3 +13,22 @@
   gap: 20px; /* Space between each menu item/card */
   justify-content: center; /* Center the cards in the menu container */
 }
+
+
+.favIconWrapper {
+  font-size: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.favIconLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.favCount {
+  font-size: 18px;
+}
